@@ -18,6 +18,7 @@ public class VehicleController extends Thread{
 	private static int SpeedValue;
 	private static int BatterieValue;
 	private static int finThread;
+	private static int AutoValue;
 	private Thread ThreadLux;
 	private Thread ThreadUL;
 	private Thread ThreadInfo;
@@ -25,6 +26,7 @@ public class VehicleController extends Thread{
 	private Thread ThreadGyro;
 	private Thread ThreadCon;
 	private Thread ThreadSpeed;
+	private Thread ThreadModeAuto;
 
 
 	public VehicleController()//Constructeur de la classe
@@ -40,7 +42,7 @@ public class VehicleController extends Thread{
 		TractionMotors = new Motors();
 		ThreadLux = new Thread(new LuxExecution(50));
 		ThreadUL = new Thread(new ULExecution(50));
-		ThreadInfo = new Thread(new InfoExecution(50));
+		//ThreadInfo = new Thread(new InfoExecution(50));
 		ThreadBat = new Thread(new BatExecution(1000));
 		ThreadGyro = new Thread(new GyroExecution(50));
 		ThreadCon = new Thread(new ConExecution(50));
@@ -48,12 +50,12 @@ public class VehicleController extends Thread{
 		
 		ThreadLux.start();
 		ThreadUL.start();
-		ThreadInfo.start();
+		//ThreadInfo.start();
 		ThreadBat.start();
 		ThreadGyro.start();
 		ThreadCon.start();
 		ThreadSpeed.start();
-		
+		System.out.println("Constru Vehicont OK");
 		
 	}
 	
@@ -64,56 +66,14 @@ public class VehicleController extends Thread{
 	
 	public void AutoMode()throws InterruptedException //Mode automatique du Robot
 	{
-		int cpt = 0;
-		while(cpt < 600) 
-		{
-			if (UltraValue < 15 && UltraValue != 0)
-			{
-				VS.beep();
-				TractionMotors.turn90L();
-				TractionMotors.forward();
-	
-			}
-			
-			if (ContactValue == 1)
-			{
-				VS.beep();
-				TractionMotors.turn90L();
-				TractionMotors.forward();
-			}
-			
-			
-			if (LuxValue < 4)
-			{
-				VS.Ton3(1500);
-				break;
-			}
-			
-			if (LuxValue < 20 )
-			{
-				TractionMotors.forward(200);
-			}
-			
-			if (LuxValue > 20)
-			{
-				TractionMotors.forward(400);
-			}
-			
-			if ( GyroValue < -5)
-			{
-				TractionMotors.forward(500);
-			}
-			else TractionMotors.forward(400);
-		
-			VSC.setLcdInformation("Batterie: "+Float.toString(BatterieValue)+"%",1);
-			VSC.setLcdInformation("Vitesse: "+TractionMotors.getSpeedR(),2);
-			VSC.setLcdInformation("Light: "+Float.toString(LuxValue)+"%",3);
-			VSC.setLcdInformation("Distance: "+Float.toString(UltraValue)+"cm",4);
-			VSC.setLcdInformation("Angle: "+Float.toString(GyroValue)+"°",5);
-			Thread.sleep(50);
-			cpt++;
-		}
-		TractionMotors.stop();
+		AutoValue = 1;
+		ThreadModeAuto = new Thread(new ModeAutoExecution(50));
+		ThreadModeAuto.start();
+	}
+
+	public void EndAutoMode()
+	{
+		AutoValue = 0;
 	}
 	
 	public void Forward()//Méthode permettant de faire avancer le Robot
@@ -153,7 +113,7 @@ public class VehicleController extends Thread{
 
 	public void Horn() //Méthode permettant de faire klaxonner le robot
 	{
-		VS.Ton3(2000);
+		VS.Ton2(1000);
 	}
 	
 	private static class LuxExecution implements Runnable //Run executer par ThreadLux permettant de recuperer périodiquement les valeurs du capteur
@@ -326,11 +286,11 @@ public class VehicleController extends Thread{
 			while(finThread == 0)
 			{
 				VSC.ClearLcd();
-				VSC.setLcdInformation("Batterie: "+Float.toString(BatterieValue)+"%",1);
-				VSC.setLcdInformation("Vitesse: "+Float.toString(SpeedValue),2);
-				VSC.setLcdInformation("Light: "+Float.toString(LuxValue)+"%",3);
-				VSC.setLcdInformation("Distance: "+Float.toString(UltraValue)+"cm",4);
-				VSC.setLcdInformation("Angle: "+Float.toString(GyroValue)+"°",5);
+				VSC.setLcdInformation("Batterie: "+Float.toString(BatterieValue)+"%",3);
+				VSC.setLcdInformation("Vitesse: "+Float.toString(SpeedValue),4);
+				VSC.setLcdInformation("Light: "+Float.toString(LuxValue)+"%",5);
+				VSC.setLcdInformation("Distance: "+Float.toString(UltraValue)+"cm",6);
+				VSC.setLcdInformation("Angle: "+Float.toString(GyroValue)+"°",7);
 				try 
 				{
 			        Thread.sleep(delai);
@@ -340,6 +300,93 @@ public class VehicleController extends Thread{
 			        e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	private static class ModeAutoExecution implements Runnable //Run executer par ThreadInfo permettant de recuperer  et d'afficher périodiquement les valeurs des différents organes
+	{
+		private int delai;
+		public ModeAutoExecution(int delai)
+		{
+			this.delai = delai;
+		}
+		
+		@Override
+		public void run()
+		{
+			while(AutoValue == 1) 
+			{
+				if (UltraValue < 15 && UltraValue != 0)
+				{
+					VS.beep();
+					try 
+					{
+						TractionMotors.turn90L();
+				    }
+					catch (InterruptedException e) 
+					{
+				        e.printStackTrace();
+					}
+					TractionMotors.forward();
+		
+				}
+				
+				if (ContactValue == 1)
+				{
+					VS.beep();
+					try 
+					{
+						TractionMotors.turn90L();
+				    }
+					catch (InterruptedException e) 
+					{
+				        e.printStackTrace();
+					}
+					TractionMotors.forward();
+					TractionMotors.forward();
+				}
+				
+				
+				if (LuxValue < 4)
+				{
+					VS.Ton3(1500);
+					break;
+				}
+				
+				if (LuxValue < 20 )
+				{
+					TractionMotors.forward(200);
+				}
+				
+				if (LuxValue > 20)
+				{
+					TractionMotors.forward(400);
+				}
+				
+				if ( GyroValue < -5)
+				{
+					TractionMotors.forward(500);
+				}
+				else TractionMotors.forward(400);
+			
+				try 
+				{
+					Thread.sleep(delai);
+			    }
+				catch (InterruptedException e) 
+				{
+			        e.printStackTrace();
+				}
+			}
+			try 
+			{
+				TractionMotors.stop();
+		    }
+			catch (InterruptedException e) 
+			{
+		        e.printStackTrace();
+			}
+			
 		}
 	}
 	

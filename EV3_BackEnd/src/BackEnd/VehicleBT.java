@@ -6,7 +6,7 @@ import lejos.remote.nxt.BTConnector;
 import lejos.remote.nxt.NXTConnection;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-//import java.io.IOException;
+import java.io.IOException;
 
 
 public class VehicleBT {
@@ -18,14 +18,22 @@ public class VehicleBT {
 	
 	public VehicleBT()
 	{
-		BTConnector BTconnector = (BTConnector) Bluetooth.getNXTCommConnector();
+		
 	}
 
 	public void connect()
 	{  
+		BTConnector BTconnector = (BTConnector) Bluetooth.getNXTCommConnector();
 		System.out.println("En attente");
-		BTConnect = (BTConnection) BTconnector.waitForConnection(30000, NXTConnection.RAW);
+		BTConnect = (BTConnection) BTconnector.waitForConnection(60000, NXTConnection.RAW);
+		System.out.println("Connexion OK");
 		out = BTConnect.openDataOutputStream();
 		in = BTConnect.openDataInputStream();
+	}
+	
+	public int ReadBT() throws IOException
+	{
+		return (int) in.readByte();
+		
 	}
 }
