@@ -9,13 +9,13 @@ public class VehicleScreen {
 		
 	}
 	
-	public void setLcdInformation(String texte, int ligne)
+	public void setLcdInformation(String texte, int ligne)//Method to draw strings on the screen
 	{
 		LCD.drawString(texte, 0, ligne);
 		LCD.refresh();
 	}
 	
-	public void ClearLcd()
+	public void ClearLcd()//method to clear the screen
 	{
 		LCD.clearDisplay();
 	}

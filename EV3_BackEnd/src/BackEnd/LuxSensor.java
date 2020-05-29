@@ -10,12 +10,14 @@ public class LuxSensor{
 	private SampleProvider luxSamp;
 	private float[] luxSampTab;
 
-	public LuxSensor() {
+	public LuxSensor() //Constructor initializing the sensor variable using port S1
+	{
 		
 		sensor = new EV3ColorSensor(SensorPort.S1);
 	}
 	
-	public int getLux() {
+	public int getLux() //Method for returning the value of the ambient luminosity
+	{
 		
 		luxSamp = sensor.getAmbientMode();
 		luxSampTab = new float[luxSamp.sampleSize()];
